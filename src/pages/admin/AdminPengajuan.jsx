@@ -134,7 +134,7 @@ const AdminPengajuan = () => {
             <thead>
               <tr className="bg-[#d28b24] text-white">
                 <th className="py-3 px-4 font-medium rounded-l-md">No</th>
-                <th className="py-3 px-4 font-medium">Nama</th>
+                <th className="py-3 px-4 font-medium text-left">Nama</th>
                 <th className="py-3 px-4 font-medium">Tanggal</th>
                 <th className="py-3 px-4 font-medium">Keterangan</th>
                 <th className="py-3 px-4 font-medium">Bukti</th>
@@ -164,9 +164,9 @@ const AdminPengajuan = () => {
                   }
 
                   return (
-                    <tr key={row.id || index} className="border-b border-gray-100 last:border-0">
+                    <tr key={row.id || index} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-4 text-black">{index + 1}</td>
-                      <td className="py-4 px-4 font-medium text-black">{row.nama}</td>
+                      <td className="py-4 px-4 font-medium text-black text-left">{row.nama}</td>
                       <td className="py-4 px-4 text-gray-500">
                         {row.tanggal_pengajuan ? new Date(row.tanggal_pengajuan).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
                       </td>

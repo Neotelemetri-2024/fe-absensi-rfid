@@ -175,7 +175,7 @@ const AdminLaporan = () => {
             <thead>
               <tr className="bg-[#d28b24] text-white">
                 <th className="py-3 px-4 font-medium rounded-l-md">No</th>
-                <th className="py-3 px-4 font-medium">Nama</th>
+                <th className="py-3 px-4 font-medium text-left">Nama</th>
                 <th className="py-3 px-4 font-medium">Hari / Tanggal</th>
                 <th className="py-3 px-4 font-medium">Jam Datang</th>
                 <th className="py-3 px-4 font-medium">Jam Pulang</th>
@@ -209,9 +209,9 @@ const AdminLaporan = () => {
                   };
 
                   return (
-                    <tr key={index} className="border-b border-gray-100 last:border-0">
+                    <tr key={index} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-4 text-black">{index + 1}</td>
-                      <td className="py-4 px-4 font-medium text-black">{row.nama}</td>
+                      <td className="py-4 px-4 font-medium text-black text-left">{row.nama}</td>
                       <td className="py-4 px-4 text-gray-500">{tanggalFormatted}</td>
                       <td className="py-4 px-4 text-gray-500">{formatTime(row.waktu_masuk || row.jam_datang)}</td>
                       <td className="py-4 px-4 text-gray-500">{formatTime(row.waktu_keluar || row.jam_pulang)}</td>

@@ -195,7 +195,7 @@ const AdminDashboard = () => {
           <table className="w-full text-center">
             <thead>
               <tr className="bg-[#d28b24] text-white">
-                <th className="py-3 px-4 font-medium rounded-l-md">Nama</th>
+                <th className="py-3 px-4 font-medium rounded-l-md text-left">Nama</th>
                 <th className="py-3 px-4 font-medium">Tanggal</th>
                 <th className="py-3 px-4 font-medium">Mulai</th>
                 <th className="py-3 px-4 font-medium">Selesai</th>
@@ -205,8 +205,8 @@ const AdminDashboard = () => {
             </thead>
             <tbody>
               {recentAttendance.map((row, index) => (
-                <tr key={row.id} className="border-b border-gray-100 last:border-0">
-                  <td className="py-4 px-4 font-medium text-black">{row.nama}</td>
+                <tr key={row.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                  <td className="py-4 px-4 font-medium text-black text-left">{row.nama}</td>
                   <td className="py-4 px-4 text-gray-500">{row.tanggal}</td>
                   <td className="py-4 px-4 text-gray-500">{row.mulai}</td>
                   <td className="py-4 px-4 text-gray-500">{row.selesai}</td>

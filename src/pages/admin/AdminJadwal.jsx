@@ -149,7 +149,7 @@ const AdminJadwal = () => {
               <thead>
                 <tr className="bg-[#d28b24] text-white">
                   <th className="py-3 px-4 font-medium rounded-l-md">No</th>
-                  <th className="py-3 px-4 font-medium">Nama</th>
+                  <th className="py-3 px-4 font-medium text-left">Nama</th>
                   <th className="py-3 px-4 font-medium">Status</th>
                   <th className="py-3 px-4 font-medium rounded-r-md">Aksi</th>
                 </tr>
@@ -161,9 +161,9 @@ const AdminJadwal = () => {
                   rekomendasi.map((row, index) => {
                     const isTerjadwal = row.sudah_terjadwal || row.status === 'Sudah Terjadwal';
                     return (
-                      <tr key={row.id || index} className="border-b border-gray-100 last:border-0">
+                      <tr key={row.id || index} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                         <td className="py-4 px-4 text-black">{index + 1}</td>
-                        <td className="py-4 px-4 font-medium text-black">{row.nama}</td>
+                        <td className="py-4 px-4 font-medium text-black text-left">{row.nama}</td>
                         <td className="py-4 px-4">
                           <span className={`px-3 py-1 rounded-md text-xs font-medium ${
                             isTerjadwal ? 'bg-yellow-100 text-yellow-700' : 'bg-orange-100 text-orange-700'

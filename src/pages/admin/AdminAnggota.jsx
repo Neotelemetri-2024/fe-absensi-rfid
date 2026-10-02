@@ -105,7 +105,7 @@ const AdminAnggota = () => {
             <thead>
               <tr className="bg-[#d28b24] text-white">
                 <th className="py-3 px-4 font-medium rounded-l-md">No</th>
-                <th className="py-3 px-4 font-medium">Nama</th>
+                <th className="py-3 px-4 font-medium text-left">Nama</th>
                 <th className="py-3 px-4 font-medium">SN</th>
                 <th className="py-3 px-4 font-medium">ID RFID</th>
                 <th className="py-3 px-4 font-medium">Hari Piket</th>
@@ -123,9 +123,9 @@ const AdminAnggota = () => {
                   const shiftList = Array.isArray(jadwal) ? jadwal.map(j => j.nama_shift || `Shift ${j.shift_id}`).join(', ') : '-';
 
                   return (
-                    <tr key={row.id} className="border-b border-gray-100 last:border-0">
+                    <tr key={row.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-4 text-black">{(currentPage - 1) * perPage + index + 1}</td>
-                      <td className="py-4 px-4 font-medium text-black">{row.nama}</td>
+                      <td className="py-4 px-4 font-medium text-black text-left">{row.nama}</td>
                       <td className="py-4 px-4 text-gray-500">{row.sn || '-'}</td>
                       <td className="py-4 px-4 text-gray-500">{row.id_rfid || '-'}</td>
                       <td className="py-4 px-4 text-gray-500">{hariList || '-'}</td>

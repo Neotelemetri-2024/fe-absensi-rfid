@@ -89,7 +89,7 @@ const AdminRanking = () => {
             <thead>
               <tr className="bg-[#d69f36] text-white">
                 <th className="py-4 px-4 font-medium">Rank</th>
-                <th className="py-4 px-4 font-medium">Nama</th>
+                <th className="py-4 px-4 font-medium text-left">Nama</th>
                 <th className="py-4 px-4 font-medium">SN</th>
                 <th className="py-4 px-4 font-medium">ID RFID</th>
                 <th className="py-4 px-4 font-medium">Total Piket</th>
@@ -102,7 +102,7 @@ const AdminRanking = () => {
                 rankingData.map((row, index) => (
                   <tr key={index} className="border-b border-gray-100 last:border-0">
                     <td className="py-5 px-4 font-bold text-black">{index + 1}</td>
-                    <td className="py-5 px-4 font-bold text-black">{row.nama}</td>
+                    <td className="py-5 px-4 font-bold text-black text-left">{row.nama}</td>
                     <td className="py-5 px-4 text-gray-400">{row.sn || 'SN'}</td>
                     <td className="py-5 px-4 text-gray-400">{row.id_rfid || 'ID RFID'}</td>
                     <td className="py-5 px-4 text-gray-400">{row.total_piket || row.total_durasi || 0}</td>
