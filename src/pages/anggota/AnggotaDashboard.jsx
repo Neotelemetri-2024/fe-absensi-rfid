@@ -208,17 +208,21 @@ const AnggotaDashboard = () => {
               <button onClick={() => setFilterGrafik('bulanan')} className={filterGrafik === 'bulanan' ? "text-black font-bold border-b-2 border-black pb-1" : "text-gray-400 font-medium pb-1"}>Bulan</button>
             </div>
           </div>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 0, bottom: 5, left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" tick={{fontSize: 12}} tickLine={false} axisLine={true} />
-                <YAxis tick={{fontSize: 12}} tickLine={false} axisLine={false} />
-                <Tooltip />
-                <Line type="monotone" dataKey="hadir" name="Hadir" stroke="#3B82F6" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="tidakHadir" name="Tidak Hadir" stroke="#EF4444" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="h-[250px] flex items-center justify-center">
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 5, right: 0, bottom: 5, left: -20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" tick={{fontSize: 12}} tickLine={false} axisLine={true} />
+                  <YAxis tick={{fontSize: 12}} tickLine={false} axisLine={false} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="hadir" name="Hadir" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="tidakHadir" name="Tidak Hadir" stroke="#EF4444" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-gray-400">Belum ada data grafik kehadiran</p>
+            )}
           </div>
           <div className="flex justify-center gap-6 mt-4">
             <div className="flex items-center gap-2"><div className="w-4 h-1 bg-[#3B82F6]"></div><span className="text-xs font-medium">Hadir</span></div>
@@ -227,16 +231,22 @@ const AnggotaDashboard = () => {
         </div>
         
         <div className="flex-1 bg-white rounded-[15px] p-8 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative">
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie data={pieData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={0} dataKey="value">
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          {totalHadir === 0 && totalTidakHadir === 0 ? (
+            <div className="w-full h-[250px] flex items-center justify-center">
+              <p className="text-gray-400">Belum ada data absensi</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie data={pieData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={0} dataKey="value">
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
           <div className="absolute right-8 top-8 flex flex-col gap-3">
             <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#8bc485]"></div><span className="text-xs">Hadir</span></div>
             <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#e85353]"></div><span className="text-xs">Tidak Hadir</span></div>

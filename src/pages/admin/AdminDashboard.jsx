@@ -151,17 +151,21 @@ const AdminDashboard = () => {
           </div>
         </div>
         
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-              <XAxis dataKey="name" axisLine={true} tickLine={false} tick={{fill: '#000', fontSize: 14}} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{fill: '#000', fontSize: 14}} dx={-10} domain={[0, 40]} ticks={[0, 10, 20, 30, 40]} />
-              <Tooltip />
-              <Line type="monotone" dataKey="hadir" name="Hadir" stroke="#3B82F6" strokeWidth={3} dot={false} />
-              <Line type="monotone" dataKey="tidakHadir" name="Tidak Hadir" stroke="#EF4444" strokeWidth={3} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="h-[300px] w-full flex items-center justify-center">
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <XAxis dataKey="name" axisLine={true} tickLine={false} tick={{fill: '#000', fontSize: 14}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#000', fontSize: 14}} dx={-10} domain={[0, 40]} ticks={[0, 10, 20, 30, 40]} />
+                <Tooltip />
+                <Line type="monotone" dataKey="hadir" name="Hadir" stroke="#3B82F6" strokeWidth={3} dot={false} />
+                <Line type="monotone" dataKey="tidakHadir" name="Tidak Hadir" stroke="#EF4444" strokeWidth={3} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-gray-400 text-lg">Belum ada data grafik kehadiran</p>
+          )}
         </div>
         <div className="flex justify-center gap-8 mt-4">
           <div className="flex items-center gap-2">
