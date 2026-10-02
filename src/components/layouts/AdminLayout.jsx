@@ -34,7 +34,6 @@ const AdminLayout = () => {
     { name: 'Laporan', path: '/admin/laporan', icon: <FileText size={20} /> },
     { name: 'Pengajuan', path: '/admin/pengajuan', icon: <FileSignature size={20} /> },
     { name: 'Jadwal Piket', path: '/admin/jadwal', icon: <CalendarDays size={20} /> },
-    { name: 'Pengaturan', path: '/admin/pengaturan', icon: <Settings size={20} /> },
   ];
 
   const isAnggotaActive = location.pathname.includes('/admin/anggota');
@@ -193,16 +192,30 @@ const AdminLayout = () => {
           </nav>
         </div>
 
-        {/* LOGOUT */}
-        <div className="p-3 border-t border-white/20">
+        {/* LOGOUT & PENGATURAN */}
+        <div className={`p-3 border-t border-white/20 flex ${isSidebarOpen ? 'flex-row gap-2' : 'flex-col gap-2 items-center'}`}>
           <button 
             onClick={handleLogout}
             title={!isSidebarOpen ? 'Log out' : ''}
-            className={`flex items-center ${isSidebarOpen ? 'gap-4 px-4' : 'justify-center px-0'} py-3 w-full text-white/80 hover:bg-white/10 hover:text-white rounded-[10px] transition-all`}
+            className={`flex items-center ${isSidebarOpen ? 'gap-3 px-4 flex-1' : 'justify-center w-10 h-10'} text-white/80 hover:bg-white/10 hover:text-white rounded-[10px] transition-all`}
           >
-            <div className="flex-shrink-0"><LogOut size={20} /></div>
+            <LogOut size={20} className="shrink-0" />
             {isSidebarOpen && <span className="text-[15px] whitespace-nowrap">Log out</span>}
           </button>
+
+          <NavLink 
+            to="/admin/pengaturan"
+            title="Pengaturan"
+            className={({ isActive }) => 
+              `flex items-center justify-center ${isSidebarOpen ? 'w-12 shrink-0' : 'w-10 h-10'} rounded-[10px] transition-all ${
+                isActive 
+                  ? 'bg-[#002D7A] text-white' 
+                  : 'text-white/80 hover:bg-white/10 hover:text-white'
+              }`
+            }
+          >
+            <Settings size={20} />
+          </NavLink>
         </div>
       </div>
 
