@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Trash2, Plus, Loader2 } from 'lucide-react';
+import { FileText, Trash2, Plus, Loader2, X } from 'lucide-react';
 import api from '../../utils/api';
 
 const SHIFTS = [
@@ -87,6 +87,20 @@ const AnggotaJadwal = () => {
     }));
   };
 
+  const handleChangeDay = (id, newDay) => {
+    if (newDay === activeTab) return;
+    setKrsData(prev => {
+      const courseToMove = prev[activeTab].find(c => c.id === id);
+      if (!courseToMove) return prev;
+      
+      return {
+        ...prev,
+        [activeTab]: prev[activeTab].filter(c => c.id !== id),
+        [newDay]: [...prev[newDay], courseToMove]
+      };
+    });
+  };
+
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -99,8 +113,14 @@ const AnggotaJadwal = () => {
     }
   };
 
-  const handlePdfUpload = async (e) => {
-    const file = e.target.files[0];
+  const handlePdfUpload = async (fileOrEvent) => {
+    let file = null;
+    if (fileOrEvent.target && fileOrEvent.target.files) {
+      file = fileOrEvent.target.files[0];
+    } else {
+      file = fileOrEvent; // From drag and drop
+    }
+    
     if (!file) return;
     setPdfFile(file);
     
@@ -119,29 +139,53 @@ const AnggotaJadwal = () => {
         return;
       }
 
-      // Merge parsed courses into current state
-      setKrsData(prev => {
-        const newData = { ...prev };
-        parsedCourses.forEach((c, idx) => {
-          const hari = c.hari;
-          if (newData[hari]) {
-            newData[hari].push({
-              id: Date.now() + idx,
-              name: c.matakuliah,
-              sks: c.sks,
-              start: c.jamMulai,
-              end: c.jamSelesai
-            });
-          }
-        });
-        return newData;
+      // Reset data agar tidak bertumpuk jika diupload berulang kali
+      setKrsData({
+        Senin: [], Selasa: [], Rabu: [], Kamis: [], Jumat: []
       });
+
+      setTimeout(() => {
+        setKrsData(prev => {
+          const newData = {
+            Senin: [...prev.Senin],
+            Selasa: [...prev.Selasa],
+            Rabu: [...prev.Rabu],
+            Kamis: [...prev.Kamis],
+            Jumat: [...prev.Jumat]
+          };
+          
+          parsedCourses.forEach((c, idx) => {
+            const hari = c.hari;
+            if (newData[hari]) {
+              newData[hari].push({
+                id: Date.now() + idx,
+                name: c.matakuliah,
+                sks: c.sks,
+                start: c.jamMulai,
+                end: c.jamSelesai
+              });
+            }
+          });
+          return newData;
+        });
+      }, 100);
       alert(`Berhasil mengekstrak ${parsedCourses.length} mata kuliah dari PDF! Silakan periksa kembali jamnya.`);
     } catch (error) {
       alert('Gagal memproses PDF: ' + (error.response?.data?.message || error.message));
     } finally {
       setParsing(false);
-      e.target.value = null;
+      if (fileOrEvent.target) fileOrEvent.target.value = null;
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handlePdfUpload(e.dataTransfer.files[0]);
     }
   };
 
@@ -158,37 +202,52 @@ const AnggotaJadwal = () => {
       </div>
 
       {/* UPLOAD PDF KRS */}
-      <div className="bg-white rounded-[15px] p-6 shadow-sm border border-gray-100 flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+      <div 
+        className="bg-white rounded-[15px] p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between mb-6 border-2 border-dashed hover:border-blue-400 transition-colors gap-4 md:gap-0"
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="text-black">
             <FileText size={40} strokeWidth={1.5} />
           </div>
           <div>
             <h3 className="font-bold text-lg text-black">Lampiran Bukti KRS (PDF)</h3>
-            <p className="text-sm text-gray-400">Silakan unggah file KRS dalam format .pdf untuk validasi data.</p>
+            <p className="text-sm text-gray-400">Silakan unggah file KRS dalam format .pdf untuk validasi data, atau seret (drag & drop) file ke kotak ini.</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <label className={`cursor-pointer px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-white ${parsing ? 'bg-gray-400' : 'bg-[#3B82F6] hover:bg-blue-600'}`}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
+          <label className={`cursor-pointer px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-white text-center w-full sm:w-auto ${parsing ? 'bg-gray-400' : 'bg-[#3B82F6] hover:bg-blue-600'}`}>
             {parsing ? <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Ekstrak AI...</span> : 'Choose file'}
             <input type="file" accept=".pdf" className="hidden" onChange={handlePdfUpload} disabled={parsing} />
           </label>
-          <span className="text-gray-400 text-sm max-w-[200px] truncate" title={pdfFile ? pdfFile.name : 'No file chosen'}>
-            {pdfFile ? pdfFile.name : 'No file chosen'}
-          </span>
+          <div className="flex items-center">
+            <span className="text-gray-400 text-sm max-w-[200px] truncate" title={pdfFile ? pdfFile.name : 'No file chosen'}>
+              {pdfFile ? pdfFile.name : 'No file chosen'}
+            </span>
+            {pdfFile && !parsing && (
+              <button 
+                onClick={() => setPdfFile(null)} 
+                className="ml-2 text-red-500 hover:text-red-700 transition-colors bg-red-50 rounded-full p-1"
+                title="Hapus File"
+              >
+                <X size={14} strokeWidth={2.5} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* MAIN FORM AREA */}
-      <div className="bg-white rounded-[15px] shadow-sm border border-gray-100 p-8 mb-8">
+      <div className="bg-white rounded-[15px] shadow-sm border border-gray-100 p-4 md:p-8 mb-8">
         
         {/* TABS */}
-        <div className="flex gap-4 mb-8">
+        <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-4 mb-8">
           {Object.keys(krsData).map(hari => (
             <button
               key={hari}
               onClick={() => setActiveTab(hari)}
-              className={`flex-1 py-3 rounded-lg font-bold transition-all ${
+              className={`flex-1 min-w-[30%] sm:min-w-0 py-2 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base ${
                 activeTab === hari 
                   ? 'bg-[#3B82F6] text-white shadow-md' 
                   : 'bg-[#E0E7FF] text-black hover:bg-[#c7d2fe]'
@@ -201,11 +260,11 @@ const AnggotaJadwal = () => {
 
         {/* KELOLA MATKUL HARI INI */}
         <div className="mb-10">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
             <h3 className="text-lg font-bold text-black">Daftar KRS {activeTab}</h3>
             <button 
               onClick={handleAddMatkul}
-              className="bg-[#D97706] hover:bg-[#b45309] text-white px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors"
+              className="bg-[#D97706] hover:bg-[#b45309] text-white px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
             >
               <Plus size={16} />
               Tambah Matkul
@@ -219,33 +278,42 @@ const AnggotaJadwal = () => {
               </div>
             ) : (
               krsData[activeTab].map((course) => (
-                <div key={course.id} className="flex gap-4 items-center">
+                <div key={course.id} className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center bg-gray-50 p-4 sm:p-0 sm:bg-transparent rounded-lg">
                   <input 
                     type="text" 
                     value={course.name}
                     onChange={(e) => handleChangeMatkul(course.id, 'name', e.target.value)}
                     placeholder="Nama Mata Kuliah"
-                    className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-gray-700"
+                    className="w-full sm:flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-gray-700"
                   />
-                  <input 
-                    type="time" 
-                    value={course.start}
-                    onChange={(e) => handleChangeMatkul(course.id, 'start', e.target.value)}
-                    className="w-32 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-gray-700"
-                  />
-                  <span className="text-gray-400 font-bold">-</span>
-                  <input 
-                    type="time" 
-                    value={course.end}
-                    onChange={(e) => handleChangeMatkul(course.id, 'end', e.target.value)}
-                    className="w-32 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-gray-700"
-                  />
-                  <button 
-                    onClick={() => handleRemoveMatkul(course.id)}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                  >
-                    <Trash2 size={24} />
-                  </button>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <select 
+                      value={activeTab} 
+                      onChange={(e) => handleChangeDay(course.id, e.target.value)}
+                      className="border border-gray-300 rounded-lg px-2 py-3 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-gray-700 bg-white cursor-pointer"
+                    >
+                      {Object.keys(krsData).map(h => <option key={h} value={h}>{h.substring(0,3)}</option>)}
+                    </select>
+                    <input 
+                      type="time" 
+                      value={course.start}
+                      onChange={(e) => handleChangeMatkul(course.id, 'start', e.target.value)}
+                      className="flex-1 sm:w-28 border border-gray-300 rounded-lg px-2 py-3 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-gray-700"
+                    />
+                    <span className="text-gray-400 font-bold">-</span>
+                    <input 
+                      type="time" 
+                      value={course.end}
+                      onChange={(e) => handleChangeMatkul(course.id, 'end', e.target.value)}
+                      className="flex-1 sm:w-28 border border-gray-300 rounded-lg px-2 py-3 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-gray-700"
+                    />
+                    <button 
+                      onClick={() => handleRemoveMatkul(course.id)}
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                    >
+                      <Trash2 size={24} />
+                    </button>
+                  </div>
                 </div>
               ))
             )}
@@ -253,10 +321,10 @@ const AnggotaJadwal = () => {
         </div>
 
         {/* STATUS SHIFT PREVIEW */}
-        <div className="border-t border-gray-100 pt-8">
+        <div className="border-t border-gray-100 pt-8 mt-6">
           <h3 className="text-lg font-bold text-black mb-6">Status Waktu Luang (Shift)</h3>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {SHIFTS.map(shift => {
               const status = calculateShiftStatus(activeTab, shift);
               const isAvailable = status === 'Tersedia';

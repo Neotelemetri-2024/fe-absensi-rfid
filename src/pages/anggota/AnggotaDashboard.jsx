@@ -131,7 +131,7 @@ const AnggotaDashboard = () => {
     <div className="font-['Poppins'] space-y-8">
       
       {/* HEADER */}
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-xl font-medium text-gray-800">Hello, {user.nama}!</h1>
           <h2 className="text-4xl font-bold text-black mt-2">Dashboard</h2>
@@ -139,7 +139,7 @@ const AnggotaDashboard = () => {
         </div>
         <button 
           onClick={handleKameraClick}
-          className="flex items-center gap-2 bg-[#d69f36] hover:bg-[#c28e2e] text-white px-6 py-3 rounded-lg font-medium shadow-sm transition-colors"
+          className="flex items-center justify-center gap-2 bg-[#d69f36] hover:bg-[#c28e2e] text-white px-6 py-3 rounded-lg font-medium shadow-sm transition-colors w-full sm:w-auto"
         >
           <Camera size={20} />
           <span>Aktifkan Kamera</span>
@@ -164,7 +164,7 @@ const AnggotaDashboard = () => {
       </div>
 
       {/* STATS */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-[#aed8a9] rounded-[15px] p-6 shadow-sm border border-[#9bc896]">
           <h3 className="text-white font-medium text-lg mb-6 drop-shadow-sm">Hadir Hari Ini</h3>
           <div className="flex justify-between items-end">
@@ -198,14 +198,14 @@ const AnggotaDashboard = () => {
       </div>
 
       {/* CHARTS */}
-      <div className="flex gap-6">
-        <div className="flex-[2] bg-white rounded-[15px] p-8 shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col xl:flex-row gap-6">
+        <div className="flex-[2] bg-white rounded-[15px] p-6 md:p-8 shadow-sm border border-gray-100">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 className="text-xl font-bold text-black">Grafik Kehadiran (Senin - Jumat)</h2>
-            <div className="flex gap-4 text-sm">
-              <button onClick={() => setFilterGrafik('harian')} className={filterGrafik === 'harian' ? "text-black font-bold border-b-2 border-black pb-1" : "text-gray-400 font-medium pb-1"}>Hari Ini</button>
-              <button onClick={() => setFilterGrafik('mingguan')} className={filterGrafik === 'mingguan' ? "text-black font-bold border-b-2 border-black pb-1" : "text-gray-400 font-medium pb-1"}>Mingguan</button>
-              <button onClick={() => setFilterGrafik('bulanan')} className={filterGrafik === 'bulanan' ? "text-black font-bold border-b-2 border-black pb-1" : "text-gray-400 font-medium pb-1"}>Bulan</button>
+            <div className="flex gap-4 text-sm overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+              <button onClick={() => setFilterGrafik('harian')} className={filterGrafik === 'harian' ? "whitespace-nowrap text-black font-bold border-b-2 border-black pb-1" : "whitespace-nowrap text-gray-400 font-medium pb-1"}>Hari Ini</button>
+              <button onClick={() => setFilterGrafik('mingguan')} className={filterGrafik === 'mingguan' ? "whitespace-nowrap text-black font-bold border-b-2 border-black pb-1" : "whitespace-nowrap text-gray-400 font-medium pb-1"}>Mingguan</button>
+              <button onClick={() => setFilterGrafik('bulanan')} className={filterGrafik === 'bulanan' ? "whitespace-nowrap text-black font-bold border-b-2 border-black pb-1" : "whitespace-nowrap text-gray-400 font-medium pb-1"}>Bulan</button>
             </div>
           </div>
           <div className="h-[250px] flex items-center justify-center">
@@ -230,7 +230,7 @@ const AnggotaDashboard = () => {
           </div>
         </div>
         
-        <div className="flex-1 bg-white rounded-[15px] p-8 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative">
+        <div className="w-full xl:w-1/3 bg-white rounded-[15px] p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative">
           {totalHadir === 0 && totalTidakHadir === 0 ? (
             <div className="w-full h-[250px] flex items-center justify-center">
               <p className="text-gray-400">Belum ada data absensi</p>
@@ -255,9 +255,9 @@ const AnggotaDashboard = () => {
       </div>
 
       {/* MATRIX JADWAL */}
-      <div className="bg-white rounded-[15px] p-8 shadow-sm border border-gray-100">
+      <div className="bg-white rounded-[15px] p-4 md:p-8 shadow-sm border border-gray-100">
         <h2 className="text-xl font-bold text-black mb-6">Jadwal Piket</h2>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto pb-4">
           <table className="w-full text-center">
             <thead>
               <tr className="bg-[#d28b24] text-white">
@@ -299,18 +299,18 @@ const AnggotaDashboard = () => {
       </div>
 
       {/* RIWAYAT / REKAP TABLE */}
-      <div className="bg-white rounded-[15px] p-8 shadow-sm border border-gray-100">
-        <div className="flex justify-between items-center mb-6">
+      <div className="bg-white rounded-[15px] p-4 md:p-8 shadow-sm border border-gray-100">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h2 className="text-xl font-bold text-black">Table Rekap Kehadiran Piket Anda</h2>
           <button 
             onClick={handleExportLaporan}
-            className="flex items-center gap-2 bg-[#d69f36] hover:bg-[#c28e2e] text-white px-4 py-2 rounded-md font-medium transition-colors text-sm"
+            className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[#d69f36] hover:bg-[#c28e2e] text-white px-4 py-2 rounded-md font-medium transition-colors text-sm"
           >
             <Download size={16} />
             <span>Export</span>
           </button>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto pb-4">
           <table className="w-full text-center">
             <thead>
               <tr className="bg-[#d28b24] text-white">

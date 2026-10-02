@@ -7,10 +7,14 @@ const AnggotaLayout = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
-  // Modal Password State
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  // Modal Settings State
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [activeSettingsTab, setActiveSettingsTab] = useState('profil'); // 'profil' | 'keamanan'
   const [pwdLoading, setPwdLoading] = useState(false);
   const [pwdData, setPwdData] = useState({ password_lama: '', password_baru: '', konfirmasi_password: '' });
+  
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileData, setProfileData] = useState({ nama: JSON.parse(localStorage.getItem('user') || '{}').nama || '' });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -35,12 +39,28 @@ const AnggotaLayout = () => {
     try {
       await api.put('/api/anggota/change-password', pwdData);
       alert('Password berhasil diubah!');
-      setIsPasswordModalOpen(false);
+      setIsSettingsModalOpen(false);
       setPwdData({ password_lama: '', password_baru: '', konfirmasi_password: '' });
     } catch (err) {
       alert(err.response?.data?.message || 'Gagal mengubah password');
     } finally {
       setPwdLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setProfileLoading(true);
+    try {
+      const res = await api.put('/api/anggota/profile', profileData);
+      alert('Profil berhasil diperbarui!');
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      // Refresh the page to show new name on sidebar/dashboard
+      window.location.reload();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal memperbarui profil');
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -119,8 +139,8 @@ const AnggotaLayout = () => {
           </button>
           
           <button 
-            onClick={() => setIsPasswordModalOpen(true)}
-            title="Ganti Password"
+            onClick={() => setIsSettingsModalOpen(true)}
+            title="Pengaturan Akun"
             className={`flex items-center justify-center ${isSidebarOpen ? 'w-12 shrink-0' : 'w-10 h-10'} rounded-[10px] transition-all text-white/80 hover:bg-white/10 hover:text-white`}
           >
             <Settings size={20} />
@@ -133,52 +153,122 @@ const AnggotaLayout = () => {
         <Outlet />
       </main>
 
-      {/* MODAL GANTI PASSWORD */}
-      {isPasswordModalOpen && (
+      {/* MODAL PENGATURAN AKUN */}
+      {isSettingsModalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <h3 className="text-xl font-bold text-gray-800">Ganti Password</h3>
-              <button onClick={() => setIsPasswordModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+              <h3 className="text-xl font-bold text-gray-800">Pengaturan Akun</h3>
+              <button onClick={() => setIsSettingsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                 <X size={24} />
               </button>
             </div>
-            <form onSubmit={handleChangePassword} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password Lama</label>
-                <input 
-                  type="password" required 
-                  value={pwdData.password_lama}
-                  onChange={e => setPwdData({...pwdData, password_lama: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#004AB9] focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
-                <input 
-                  type="password" required minLength="6"
-                  value={pwdData.password_baru}
-                  onChange={e => setPwdData({...pwdData, password_baru: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#004AB9] focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
-                <input 
-                  type="password" required minLength="6"
-                  value={pwdData.konfirmasi_password}
-                  onChange={e => setPwdData({...pwdData, konfirmasi_password: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#004AB9] focus:outline-none"
-                />
-              </div>
-              <div className="pt-4 flex justify-end gap-3">
-                <button type="button" onClick={() => setIsPasswordModalOpen(false)} className="px-5 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium">Batal</button>
-                <button type="submit" disabled={pwdLoading} className="flex items-center gap-2 px-5 py-2 text-white bg-[#004AB9] hover:bg-blue-800 rounded-lg font-medium">
-                  {pwdLoading && <Loader2 size={16} className="animate-spin" />}
-                  Simpan
-                </button>
-              </div>
-            </form>
+            
+            {/* TABS */}
+            <div className="flex border-b border-gray-100">
+              <button 
+                onClick={() => setActiveSettingsTab('profil')}
+                className={`flex-1 py-3 text-sm font-medium ${activeSettingsTab === 'profil' ? 'text-[#004AB9] border-b-2 border-[#004AB9]' : 'text-gray-500 hover:bg-gray-50'}`}
+              >
+                Profil Saya
+              </button>
+              <button 
+                onClick={() => setActiveSettingsTab('keamanan')}
+                className={`flex-1 py-3 text-sm font-medium ${activeSettingsTab === 'keamanan' ? 'text-[#004AB9] border-b-2 border-[#004AB9]' : 'text-gray-500 hover:bg-gray-50'}`}
+              >
+                Keamanan
+              </button>
+            </div>
+
+            {/* TAB: PROFIL */}
+            {activeSettingsTab === 'profil' && (
+              <form onSubmit={handleUpdateProfile} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">SN (Serial Number)</label>
+                  <input 
+                    type="text" 
+                    value={JSON.parse(localStorage.getItem('user') || '{}').sn || ''}
+                    disabled
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm cursor-not-allowed"
+                  />
+                  <p className="text-[11px] text-gray-400 mt-1">SN terkait dengan kartu RFID Anda.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">NIM</label>
+                  <input 
+                    type="text" 
+                    value={JSON.parse(localStorage.getItem('user') || '{}').nim || ''}
+                    disabled
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                  <input 
+                    type="text" required 
+                    value={profileData.nama}
+                    onChange={e => setProfileData({...profileData, nama: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#004AB9] focus:outline-none text-sm text-gray-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
+                  <input 
+                    type="text" 
+                    value={JSON.parse(localStorage.getItem('user') || '{}').jabatan || '-'}
+                    disabled
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div className="pt-4 flex justify-end gap-3">
+                  <button type="button" onClick={() => setIsSettingsModalOpen(false)} className="px-5 py-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium">Tutup</button>
+                  <button type="submit" disabled={profileLoading} className="flex items-center gap-2 px-5 py-2 text-sm text-white bg-[#004AB9] hover:bg-blue-800 rounded-lg font-medium transition-colors">
+                    {profileLoading && <Loader2 size={16} className="animate-spin" />}
+                    Simpan Profil
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* TAB: KEAMANAN (UBAH PASSWORD) */}
+            {activeSettingsTab === 'keamanan' && (
+              <form onSubmit={handleChangePassword} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password Lama</label>
+                  <input 
+                    type="password" required 
+                    value={pwdData.password_lama}
+                    onChange={e => setPwdData({...pwdData, password_lama: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#004AB9] focus:outline-none text-sm text-gray-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+                  <input 
+                    type="password" required minLength="6"
+                    value={pwdData.password_baru}
+                    onChange={e => setPwdData({...pwdData, password_baru: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#004AB9] focus:outline-none text-sm text-gray-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
+                  <input 
+                    type="password" required minLength="6"
+                    value={pwdData.konfirmasi_password}
+                    onChange={e => setPwdData({...pwdData, konfirmasi_password: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#004AB9] focus:outline-none text-sm text-gray-700"
+                  />
+                </div>
+                <div className="pt-4 flex justify-end gap-3">
+                  <button type="button" onClick={() => setIsSettingsModalOpen(false)} className="px-5 py-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium">Batal</button>
+                  <button type="submit" disabled={pwdLoading} className="flex items-center gap-2 px-5 py-2 text-sm text-white bg-[#004AB9] hover:bg-blue-800 rounded-lg font-medium transition-colors">
+                    {pwdLoading && <Loader2 size={16} className="animate-spin" />}
+                    Ubah Password
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

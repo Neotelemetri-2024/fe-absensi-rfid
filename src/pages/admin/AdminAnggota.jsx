@@ -12,6 +12,7 @@ const AdminAnggota = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalData, setTotalData] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedIds, setSelectedIds] = useState([]);
   const perPage = 10; // Menyesuaikan limit backend
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const AdminAnggota = () => {
       const pagination = response.data?.pagination || {};
       setTotalData(pagination.total || 0);
       setTotalPages(pagination.total_pages || 1);
-
+      setSelectedIds([]); // Reset selection on page change
     } catch (err) {
       setError(err.response?.data?.message || 'Gagal mengambil data anggota');
     } finally {
@@ -48,6 +49,33 @@ const AdminAnggota = () => {
       fetchAnggota();
     } catch (err) {
       alert(err.response?.data?.message || 'Gagal menghapus anggota');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Yakin ingin menghapus ${selectedIds.length} anggota yang dipilih?`)) return;
+    try {
+      await api.post('/api/admin/anggota/bulk-delete', { ids: selectedIds });
+      fetchAnggota();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal menghapus anggota terpilih');
+    }
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(anggotaList.map(row => row.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(selectedId => selectedId !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
     }
   };
 
@@ -72,18 +100,30 @@ const AdminAnggota = () => {
         <h1 className="text-4xl font-bold text-black mt-2">Anggota</h1>
       </div>
 
-      {/* SEARCH */}
-      <div className="relative mb-4 w-fit">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-gray-400" />
+      {/* SEARCH & ACTIONS */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="relative w-fit">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:border-blue-500 w-[350px]"
+            placeholder="Cari Nama / NIM / ID RFID"
+          />
         </div>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-          className="pl-10 pr-4 py-2 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:border-blue-500 w-[350px]"
-          placeholder="Cari Nama / NIM / ID RFID"
-        />
+        
+        {selectedIds.length > 0 && (
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-[10px] text-sm font-medium transition-colors shadow-sm"
+          >
+            <Trash2 size={16} />
+            Hapus Terpilih ({selectedIds.length})
+          </button>
+        )}
       </div>
 
       {/* TOTAL BAR */}
@@ -104,7 +144,15 @@ const AdminAnggota = () => {
           <table className="w-full text-center">
             <thead>
               <tr className="bg-[#d28b24] text-white">
-                <th className="py-3 px-4 font-medium rounded-l-md">No</th>
+                <th className="py-3 px-4 font-medium rounded-l-md w-12">
+                  <input 
+                    type="checkbox" 
+                    onChange={handleSelectAll}
+                    checked={anggotaList.length > 0 && selectedIds.length === anggotaList.length}
+                    className="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                </th>
+                <th className="py-3 px-4 font-medium">No</th>
                 <th className="py-3 px-4 font-medium text-left">Nama</th>
                 <th className="py-3 px-4 font-medium">SN</th>
                 <th className="py-3 px-4 font-medium">ID RFID</th>
@@ -123,7 +171,15 @@ const AdminAnggota = () => {
                   const shiftList = Array.isArray(jadwal) ? jadwal.map(j => j.nama_shift || `Shift ${j.shift_id}`).join(', ') : '-';
 
                   return (
-                    <tr key={row.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                    <tr key={row.id} className={`border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors ${selectedIds.includes(row.id) ? 'bg-blue-50/50' : ''}`}>
+                      <td className="py-4 px-4 text-black">
+                        <input 
+                          type="checkbox"
+                          checked={selectedIds.includes(row.id)}
+                          onChange={() => handleSelectOne(row.id)}
+                          className="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                      </td>
                       <td className="py-4 px-4 text-black">{(currentPage - 1) * perPage + index + 1}</td>
                       <td className="py-4 px-4 font-medium text-black text-left">{row.nama}</td>
                       <td className="py-4 px-4 text-gray-500">{row.sn || '-'}</td>

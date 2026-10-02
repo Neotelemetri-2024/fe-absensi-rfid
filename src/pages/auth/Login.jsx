@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import api from '../../utils/api';
 
 const Login = () => {
@@ -9,6 +9,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ login: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -136,14 +137,25 @@ const Login = () => {
                   <Lock className="h-[26px] w-[26px] text-[#959595]" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="block w-full pl-12 pr-4 h-[56px] border border-[#707070] rounded-[10px] focus:outline-none focus:ring-1 focus:ring-[#004AB9] focus:border-[#004AB9] text-[20px] text-[#707070] bg-transparent"
+                  className="block w-full pl-12 pr-12 h-[56px] border border-[#707070] rounded-[10px] focus:outline-none focus:ring-1 focus:ring-[#004AB9] focus:border-[#004AB9] text-[20px] text-[#707070] bg-transparent"
                   placeholder="Enter your password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-[15px] flex items-center text-[#959595] hover:text-[#004AB9] focus:outline-none transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-[24px] w-[24px]" />
+                  ) : (
+                    <Eye className="h-[24px] w-[24px]" />
+                  )}
+                </button>
               </div>
             </div>
 

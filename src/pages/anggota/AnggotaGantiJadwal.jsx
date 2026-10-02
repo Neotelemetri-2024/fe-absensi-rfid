@@ -67,11 +67,11 @@ const AnggotaGantiJadwal = () => {
         <p className="text-gray-500 mt-2">Ajukan pergantian jadwal piket sementara</p>
       </div>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* FORM GANTI JADWAL */}
-        <div className="flex-1 bg-white rounded-[15px] p-8 shadow-sm border border-gray-100">
+        <div className="flex-1 w-full bg-white rounded-[15px] p-6 sm:p-8 shadow-sm border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-bold text-black mb-2 block">Nama Lengkap</label>
                 <input type="text" value={user.nama || ''} disabled
@@ -84,7 +84,7 @@ const AnggotaGantiJadwal = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-bold text-black mb-2 block">Shift Sekarang (Yang Ditinggalkan)</label>
                 <select required value={formData.shift_awal_id} onChange={(e) => setFormData({...formData, shift_awal_id: e.target.value})}
@@ -100,7 +100,7 @@ const AnggotaGantiJadwal = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-bold text-black mb-2 block">Pindah Ke Shift</label>
                 <select required value={formData.shift_id} onChange={(e) => setFormData({...formData, shift_id: e.target.value})}
@@ -125,7 +125,7 @@ const AnggotaGantiJadwal = () => {
 
             <div className="flex justify-end pt-4">
               <button type="submit" disabled={loading}
-                className="px-8 py-3 bg-[#004AB9] hover:bg-[#003a94] text-white rounded-[10px] text-sm font-medium disabled:opacity-50">
+                className="w-full sm:w-auto px-8 py-3 bg-[#004AB9] hover:bg-[#003a94] text-white rounded-[10px] text-sm font-medium disabled:opacity-50">
                 {loading ? 'Mengirim...' : 'Kirim Pengajuan'}
               </button>
             </div>
@@ -133,7 +133,7 @@ const AnggotaGantiJadwal = () => {
         </div>
 
         {/* RIWAYAT PENGAJUAN */}
-        <div className="w-[450px] bg-white rounded-[15px] p-6 shadow-sm border border-gray-100 shrink-0">
+        <div className="w-full lg:w-[450px] bg-white rounded-[15px] p-6 shadow-sm border border-gray-100 shrink-0">
           <h2 className="text-xl font-bold text-black mb-4">Riwayat Ganti Jadwal Anda</h2>
           <div className="space-y-4">
             {riwayat.length === 0 ? (

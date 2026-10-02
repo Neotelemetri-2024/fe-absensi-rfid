@@ -14,6 +14,7 @@ const AdminEditAnggota = () => {
   });
   const [jadwalPiket, setJadwalPiket] = useState([]);
   const [selectedHari, setSelectedHari] = useState('Senin');
+  const [selectedShift, setSelectedShift] = useState('');
   const [krsData, setKrsData] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -112,6 +113,18 @@ const AdminEditAnggota = () => {
     return 'available';
   };
 
+  const handleAddJadwal = () => {
+    if (!selectedHari || !selectedShift) return;
+    const exists = jadwalPiket.find(j => (j.hari === selectedHari || j.hari_piket === selectedHari) && j.shift_id === parseInt(selectedShift));
+    if (!exists) {
+      setJadwalPiket([...jadwalPiket, { hari: selectedHari, shift_id: parseInt(selectedShift) }]);
+    }
+  };
+
+  const handleRemoveJadwal = (hari, shift_id) => {
+    setJadwalPiket(jadwalPiket.filter(j => !((j.hari === hari || j.hari_piket === hari) && j.shift_id === shift_id)));
+  };
+
   return (
     <div className="font-['Poppins']">
       
@@ -202,8 +215,20 @@ const AdminEditAnggota = () => {
               <div className="flex-1">
                 <label className="text-sm font-bold text-black mb-2 block">Shift</label>
                 <div className="relative">
-                  <select className="w-full px-4 py-3 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:border-blue-500 appearance-none bg-white">
-                    {shifts.map(s => <option key={s.id} value={s.id}>{s.nama_shift}</option>)}
+                  <select 
+                    value={selectedShift} onChange={(e) => setSelectedShift(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:border-blue-500 appearance-none bg-white"
+                  >
+                    <option value="">Pilih Shift</option>
+                    {shifts.map(s => {
+                      const status = getShiftStatus(s);
+                      const isConflict = status === 'conflict';
+                      return (
+                        <option key={s.id} value={s.id} disabled={isConflict}>
+                          {s.nama_shift} {isConflict ? '(Bentrok Kuliah)' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                   <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -212,29 +237,44 @@ const AdminEditAnggota = () => {
               </div>
             </div>
 
-            <div className="space-y-3">
-              {shifts.map(shift => {
-                const status = getShiftStatus(shift);
-                let bgColor = 'bg-white border-gray-200';
-                let label = 'Tersedia';
-                let labelColor = 'text-green-500';
-                
-                if (status === 'conflict') {
-                  bgColor = 'bg-red-50 border-red-200';
-                  label = 'Kegiatan';
-                  labelColor = 'text-red-500';
-                }
+            <button 
+              type="button" 
+              onClick={handleAddJadwal}
+              disabled={!selectedHari || !selectedShift}
+              className="w-full mb-6 py-3 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 rounded-[10px] text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Plus size={16} /> Tambah Jadwal
+            </button>
 
-                return (
-                  <div key={shift.id} className={`flex justify-between items-center px-4 py-4 rounded-[10px] border shadow-sm ${bgColor}`}>
-                    <div>
-                      <p className={`font-bold ${status === 'conflict' ? 'text-red-500' : 'text-black'}`}>{shift.nama_shift}</p>
-                      <p className={`text-xs ${status === 'conflict' ? 'text-red-400' : 'text-gray-500'}`}>({shift.jam_mulai?.substring(0,5)} - {shift.jam_selesai?.substring(0,5)})</p>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-black block">Jadwal Terpilih</label>
+                <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{jadwalPiket.length}</span>
+              </div>
+              
+              {jadwalPiket.length === 0 ? (
+                <p className="text-sm text-gray-500 italic text-center py-4 border border-dashed rounded-[10px]">Belum ada jadwal yang dipilih.</p>
+              ) : (
+                jadwalPiket.map((j, idx) => {
+                  const hari = j.hari || j.hari_piket;
+                  const shiftDetail = shifts.find(s => s.id === j.shift_id);
+                  return (
+                    <div key={idx} className="flex justify-between items-center px-4 py-3 rounded-[10px] border border-gray-200 bg-gray-50">
+                      <div>
+                        <p className="text-sm font-bold text-black">{hari} - {shiftDetail?.nama_shift}</p>
+                        <p className="text-xs text-gray-500">{shiftDetail?.jam_mulai?.substring(0,5)} - {shiftDetail?.jam_selesai?.substring(0,5)}</p>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveJadwal(hari, j.shift_id)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
-                    <span className={`text-sm font-bold ${labelColor}`}>{label}</span>
-                  </div>
-                );
-              })}
+                  )
+                })
+              )}
             </div>
           </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Lock, Loader2, ArrowLeft } from 'lucide-react';
+import { Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import api from '../../utils/api';
 
 const ResetPassword = () => {
@@ -12,6 +12,8 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Jika tidak ada token di URL, beri error
   useEffect(() => {
@@ -88,14 +90,21 @@ const ResetPassword = () => {
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password_baru"
                   required minLength="6"
                   value={formData.password_baru}
                   onChange={handleChange}
-                  className="block w-full pl-12 pr-4 h-14 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004AB9] focus:border-[#004AB9] text-gray-700 bg-gray-50"
+                  className="block w-full pl-12 pr-12 h-14 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004AB9] focus:border-[#004AB9] text-gray-700 bg-gray-50"
                   placeholder="Minimal 6 karakter"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#004AB9] focus:outline-none transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
             
@@ -106,14 +115,21 @@ const ResetPassword = () => {
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   name="konfirmasi_password"
                   required minLength="6"
                   value={formData.konfirmasi_password}
                   onChange={handleChange}
-                  className="block w-full pl-12 pr-4 h-14 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004AB9] focus:border-[#004AB9] text-gray-700 bg-gray-50"
+                  className="block w-full pl-12 pr-12 h-14 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004AB9] focus:border-[#004AB9] text-gray-700 bg-gray-50"
                   placeholder="Ulangi password baru"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#004AB9] focus:outline-none transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
