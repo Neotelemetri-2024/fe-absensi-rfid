@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Download, Loader2, Eye } from 'lucide-react';
+import { Search, Download, Loader2, Eye, Edit2, X } from 'lucide-react';
 import api from '../../utils/api';
 
 const AdminLaporan = () => {
@@ -9,6 +9,13 @@ const AdminLaporan = () => {
   const [dariTanggal, setDariTanggal] = useState('');
   const [sampaiTanggal, setSampaiTanggal] = useState('');
   const [showExportMenu, setShowExportMenu] = useState(false);
+  
+  // Edit State
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [editStatus, setEditStatus] = useState('');
+  const [editMasuk, setEditMasuk] = useState('');
+  const [editKeluar, setEditKeluar] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // Set default ke awal bulan sampai hari ini
@@ -42,6 +49,41 @@ const AdminLaporan = () => {
       setError(err.response?.data?.message || 'Gagal mengambil data laporan');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditClick = (record) => {
+    setEditingRecord(record);
+    setEditStatus(record.status || 'Hadir');
+    
+    const formatTimeForInput = (timeStr) => {
+      if (!timeStr) return '';
+      if (timeStr.includes('T')) {
+        return new Date(timeStr).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+      }
+      return timeStr.substring(0, 5);
+    };
+    
+    setEditMasuk(formatTimeForInput(record.waktu_masuk || record.jam_datang));
+    setEditKeluar(formatTimeForInput(record.waktu_keluar || record.jam_pulang));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingRecord) return;
+    try {
+      setIsSubmitting(true);
+      await api.put(`/api/admin/laporan/kehadiran/${editingRecord.id}`, {
+        status: editStatus,
+        waktu_masuk: editMasuk || null,
+        waktu_keluar: editKeluar || null
+      });
+      alert('Status absensi berhasil diperbarui!');
+      setEditingRecord(null);
+      loadData(dariTanggal, sampaiTanggal);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal memperbarui absensi');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -181,14 +223,15 @@ const AdminLaporan = () => {
                 <th className="py-3 px-4 font-medium">Jam Pulang</th>
                 <th className="py-3 px-4 font-medium">Durasi</th>
                 <th className="py-3 px-4 font-medium">Status</th>
-                <th className="py-3 px-4 font-medium rounded-r-md">Bukti</th>
+                <th className="py-3 px-4 font-medium">Bukti</th>
+                <th className="py-3 px-4 font-medium rounded-r-md">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {!laporanData ? (
-                <tr><td colSpan="8" className="py-8 text-gray-400">Pilih rentang tanggal dan klik Preview untuk melihat data</td></tr>
+                <tr><td colSpan="9" className="py-8 text-gray-400">Pilih rentang tanggal dan klik Preview untuk melihat data</td></tr>
               ) : records.length === 0 ? (
-                <tr><td colSpan="8" className="py-8 text-gray-400">Tidak ada data pada rentang tanggal ini</td></tr>
+                <tr><td colSpan="9" className="py-8 text-gray-400">Tidak ada data pada rentang tanggal ini</td></tr>
               ) : (
                 records.map((row, index) => {
                   let statusColor = 'text-gray-500';
@@ -228,6 +271,11 @@ const AdminLaporan = () => {
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
+                      <td className="py-4 px-4">
+                        <button onClick={() => handleEditClick(row)} className="text-[#d28b24] hover:text-[#b8761c] bg-orange-50 hover:bg-orange-100 p-2 rounded-lg transition-colors" title="Edit Manual">
+                          <Edit2 size={16} />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
@@ -236,6 +284,82 @@ const AdminLaporan = () => {
           </table>
         </div>
       </div>
+
+      {/* MODAL EDIT MANUAL */}
+      {editingRecord && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h3 className="text-xl font-bold text-gray-800">Edit Manual Kehadiran</h3>
+              <button onClick={() => setEditingRecord(null)} className="text-gray-400 hover:text-red-500 transition-colors bg-white hover:bg-red-50 rounded-full p-1.5 shadow-sm">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-5">
+              <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 mb-2">
+                <p className="text-sm text-gray-500 mb-1">Nama Anggota</p>
+                <p className="font-semibold text-gray-800">{editingRecord.nama}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {editingRecord.tanggal ? new Date(editingRecord.tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '-'}
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">Status Kehadiran</label>
+                <select 
+                  value={editStatus}
+                  onChange={(e) => setEditStatus(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#d28b24]/20 focus:border-[#d28b24] transition-all bg-gray-50 focus:bg-white"
+                >
+                  <option value="Hadir">Hadir</option>
+                  <option value="Izin">Izin</option>
+                  <option value="Tidak Hadir">Tidak Hadir (Alpa)</option>
+                  <option value="Sedang Piket">Sedang Piket</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-2">Jam Datang</label>
+                  <input 
+                    type="time"
+                    value={editMasuk}
+                    onChange={(e) => setEditMasuk(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#d28b24]/20 focus:border-[#d28b24] transition-all bg-gray-50 focus:bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-2">Jam Pulang</label>
+                  <input 
+                    type="time"
+                    value={editKeluar}
+                    onChange={(e) => setEditKeluar(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#d28b24]/20 focus:border-[#d28b24] transition-all bg-gray-50 focus:bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50">
+              <button 
+                onClick={() => setEditingRecord(null)}
+                className="px-6 py-2.5 text-gray-600 hover:bg-gray-200 bg-gray-100 rounded-xl text-sm font-medium transition-colors"
+                disabled={isSubmitting}
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleSaveEdit}
+                disabled={isSubmitting}
+                className="px-6 py-2.5 bg-[#d28b24] hover:bg-[#b8761c] text-white rounded-xl text-sm font-medium transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Menyimpan...</> : 'Simpan Perubahan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
