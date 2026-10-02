@@ -108,22 +108,22 @@ const AnggotaLayout = () => {
         </nav>
 
         {/* BOTTOM BUTTONS */}
-        <div className="p-4 pb-6 mt-auto space-y-2 border-t border-white/10 pt-4">
-          <button 
-            onClick={() => setIsPasswordModalOpen(true)}
-            title={!isSidebarOpen ? 'Ganti Password' : ''}
-            className={`flex items-center ${isSidebarOpen ? 'gap-3 px-4' : 'justify-center px-0'} py-2 text-white/80 hover:text-white transition-all w-full`}
-          >
-            <div className="flex-shrink-0"><Settings size={20} /></div>
-            {isSidebarOpen && <span className="font-medium whitespace-nowrap text-sm">Ganti Password</span>}
-          </button>
+        <div className={`p-3 border-t border-white/10 flex mt-auto ${isSidebarOpen ? 'flex-row gap-2' : 'flex-col gap-2 items-center'}`}>
           <button 
             onClick={handleLogout}
             title={!isSidebarOpen ? 'Logout' : ''}
-            className={`flex items-center ${isSidebarOpen ? 'gap-3 px-4' : 'justify-center px-0'} py-2 text-red-300 hover:text-red-100 transition-all w-full`}
+            className={`flex items-center ${isSidebarOpen ? 'gap-3 px-4 flex-1' : 'justify-center w-10 h-10'} text-red-300 hover:bg-white/10 hover:text-red-100 rounded-[10px] transition-all`}
           >
-            <div className="flex-shrink-0"><LogOut size={20} /></div>
-            {isSidebarOpen && <span className="font-medium whitespace-nowrap text-sm">Logout</span>}
+            <LogOut size={20} className="shrink-0" />
+            {isSidebarOpen && <span className="text-[15px] whitespace-nowrap">Logout</span>}
+          </button>
+          
+          <button 
+            onClick={() => setIsPasswordModalOpen(true)}
+            title="Ganti Password"
+            className={`flex items-center justify-center ${isSidebarOpen ? 'w-12 shrink-0' : 'w-10 h-10'} rounded-[10px] transition-all text-white/80 hover:bg-white/10 hover:text-white`}
+          >
+            <Settings size={20} />
           </button>
         </div>
       </aside>
