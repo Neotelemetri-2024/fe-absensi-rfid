@@ -60,6 +60,12 @@ const AdminEditAnggota = () => {
     alert('Fitur Realtime Scan akan aktif setelah RFID reader terhubung.');
   };
 
+  const handleGenerateRFID = () => {
+    // Generate 10-digit random number as fake RFID tag
+    const randomRFID = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+    setFormData(prev => ({ ...prev, id_rfid: randomRFID }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -174,9 +180,15 @@ const AdminEditAnggota = () => {
               
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-black">ID RFID</label>
-                <input type="text" name="id_rfid" value={formData.id_rfid} onChange={handleChange}
-                  className="px-4 py-3 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:border-blue-500"
-                  placeholder="Masukkan ID RFID" />
+                <div className="flex gap-3">
+                  <input type="text" name="id_rfid" value={formData.id_rfid} onChange={handleChange}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:border-blue-500"
+                    placeholder="Masukkan ID RFID" />
+                  <button type="button" onClick={handleGenerateRFID}
+                    className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-[10px] transition-colors whitespace-nowrap">
+                    Generate Otomatis
+                  </button>
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">

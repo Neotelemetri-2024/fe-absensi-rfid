@@ -54,6 +54,11 @@ const AdminTambahAnggota = () => {
     alert('Fitur Realtime Scan akan aktif setelah RFID reader terhubung.');
   };
 
+  const handleGenerateRFID = () => {
+    const randomRFID = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+    setFormData(prev => ({ ...prev, id_rfid: randomRFID }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -154,6 +159,13 @@ const AdminTambahAnggota = () => {
                     />
                     <p className="text-xs text-gray-400 mt-1">ID RFID harus unik untuk setiap anggota</p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={handleGenerateRFID}
+                    className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-3 rounded-[10px] font-medium text-sm shrink-0 h-fit transition-colors"
+                  >
+                    Generate Otomatis
+                  </button>
                   <button
                     type="button"
                     onClick={handleRealtimeScan}
