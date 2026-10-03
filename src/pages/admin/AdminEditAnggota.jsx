@@ -164,6 +164,13 @@ const AdminEditAnggota = () => {
                   className="px-4 py-3 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:border-blue-500"
                   placeholder="Masukkan SN" />
               </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-black">NIM</label>
+                <input type="text" name="nim" value={formData.nim || ''} onChange={handleChange} required
+                  className="px-4 py-3 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:border-blue-500"
+                  placeholder="Masukkan NIM" />
+              </div>
               
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-black">ID RFID</label>
