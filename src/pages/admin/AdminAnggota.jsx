@@ -183,7 +183,7 @@ const AdminAnggota = () => {
                       <td className="py-4 px-4 text-black">{(currentPage - 1) * perPage + index + 1}</td>
                       <td className="py-4 px-4 font-medium text-black text-left">{row.nama}</td>
                       <td className="py-4 px-4 text-gray-500">{row.sn || '-'}</td>
-                      <td className="py-4 px-4 text-gray-500">{row.id_rfid || '-'}</td>
+                      <td className="py-4 px-4 text-gray-500">{row.rfid_tag || '-'}</td>
                       <td className="py-4 px-4 text-gray-500">{hariList || '-'}</td>
                       <td className="py-4 px-4 text-gray-500">{shiftList || '-'}</td>
                       <td className="py-4 px-4">

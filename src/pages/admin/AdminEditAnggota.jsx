@@ -37,7 +37,8 @@ const AdminEditAnggota = () => {
           nama: anggota.nama || '',
           email: anggota.email || '',
           sn: anggota.sn || '',
-          id_rfid: anggota.id_rfid || '',
+          nim: anggota.nim || '',
+          id_rfid: anggota.rfid_tag || anggota.id_rfid || '',
         });
         
         setJadwalPiket(anggota.jadwal_piket || anggota.schedules || []);
